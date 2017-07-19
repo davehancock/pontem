@@ -1,0 +1,15 @@
+machine:
+  services:
+    - docker
+
+test:
+  override:
+    - docker build -t daves125125/pontem .
+
+deployment:
+  hub:
+    branch: master
+    commands:
+      - docker build -t daves125125/pontem .
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - docker push daves125125/pontem
