@@ -6,6 +6,7 @@ http {
   ssl_session_cache shared:SSL:20m;
   ssl_session_timeout 10m;
   ssl_dhparam /app/proxy/dhparam.pem;
+  ssl_ecdh_curve prime256v1:secp384r1;
 
   server {
 
@@ -22,7 +23,7 @@ http {
 
     location / {
       resolver 127.0.0.11;
-      proxy_pass ${service_address}$is_args$args;
+      proxy_pass ${service_address};
     }
   }
 
