@@ -6,29 +6,32 @@ Pontem handles the generation and configuration of TLS certificates for a given 
 uses Nginx for the proxy implementation and ships with redirect rules to forward onto a downstream service complete
 with 301 redirects for common protocol / www subdomain variations i.e:
 
-- http://www.[mydomain] >> https://www.[mydomain]
-- http://[mydomain] >> https://www.[mydomain]
-- https://[mydomain] >> https://www.[mydomain]
+- http:<i></i>//www<i></i>.[mydomain] ---> https:<i></i>//www<i></i>.[mydomain]
+- http://[mydomain] ---> https://<i></i>www<i></i>.[mydomain]
+- https://[mydomain] ---> https://<i></i>www<i></i>.[mydomain]
 
 
-## Examples
+## Usage
 
 ##### Standalone
 ```
 docker run -p 80:80 -p 443:443 daves125125/pontem -d foo.com -s http://downstream:8081
 ```
 
-##### Standalone - with email expiry notifications from letsencrypt
+##### Standalone - with email expiry notifications from LetsEncrypt
 ```
 docker run -p 80:80 -p 443:443 daves125125/pontem -d foo.com -s http://downstream:8081 -e foo@foo.com
 ```
 
 ##### Remote Certificate Backup - via a configured Freighter store
 ```
-env FREIGHTER_PROVIDER=dropbox FREIGHTER_TOKEN=SECRET | docker run -p 80:80 -p 443:443 -e FREIGHTER_PROVIDER -e FREIGHTER_TOKEN daves125125/pontem -d foo.com -s http://downstream:8081 -n foo
+docker run -p 80:80 -p 443:443 -e FREIGHTER_PROVIDER=dropbox -e FREIGHTER_TOKEN=SECRET daves125125/pontem \
+    -d foo.com \
+    -s http://downstream:8081 \
+    -n foo
 ```
 
-## CLI Usage
+### CLI Options
 
 ```
 Usage: pontem [options]
@@ -46,16 +49,16 @@ Optional Arguments:
 
 ## Customization
 
-The custom template shipped with Pontem provides simple out of the box configuration to generate HTTPS certificates and 
-forwards traffic to https://[mydomain] but this may not suit all use cases.
+The default template shipped with Pontem provides simple out of the box configuration to generate HTTPS certificates as well 
+as forwarding all traffic to *https:<i></i>//www<i></i>.[mydomain]*.
 
-You can provide a custom nginx template by mounting a docker volume to replace the /app/proxy/nginx.conf.tpl template file like so:
+You can provide a customised nginx template by mounting a docker volume to replace the /app/proxy/nginx.conf.tpl template file like so:
 
 ```
-docker run -v /custom_template_file:/app/proxy/nginx.conf.tpl -p 80:80 -p 443:443 -e FREIGHTER_PROVIDER -e FREIGHTER_TOKEN daves125125/pontem -d foo.com -s http://downstream:8081 -n foo
+docker run -v /custom_template_file:/app/proxy/nginx.conf.tpl -p 80:80 -p 443:443 daves125125/pontem -d foo.com -s http://downstream:8081 -n foo
 ```
 
-#### Template variables
+### Template variables
 
 Custom templates can make use of the following variables:
 
@@ -111,5 +114,10 @@ events {
   worker_connections 1024;
 }
 
-
 ```
+
+## Security
+
+The default configuration achieves an A grade marking (as of August 2017) on sites such as https://www.ssllabs.com/
+
+![Imgur](http://i.imgur.com/P0usj0I.png)
